@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+using System.Linq;
 
 namespace ConsoleApp
 {
@@ -14,36 +13,31 @@ namespace ConsoleApp
          * 決策(Decision)可以被拆解為篩選、排序的這兩個行為的組合。
          */
 
-        public  Func<Strategy, bool> Where;
-        public  Func<Strategy, int> Sort;
+        public  Func<KeyValuePair<ActionProfile, PayoffVector>, bool> Where;
+        public  Func<KeyValuePair<ActionProfile, PayoffVector>, int> Sort;
+        public Func<PayoffVector, string> Display;
         public string Name { get; set; }
-        public DecisionMaker(string name, Func<Strategy, bool> where, Func<Strategy, int> sort)
+        public DecisionMaker(string name,
+            Func<KeyValuePair<ActionProfile, PayoffVector>, bool> where,
+            Func<KeyValuePair<ActionProfile, PayoffVector>, int> sort,
+            Func<PayoffVector, string> display)
         {
             this.Name = name;
             this.Where = where;
             this.Sort = sort;
+            Display = display;
         }
 
-        public Strategy Decision(GameInfo info)
+        public object Decision(GameInfo info)
         {
-            return info.StrategyList.Where(Where).OrderByDescending(Sort).First();
+            return Display(info.StrategyList.Where(x=>true).OrderByDescending(Sort).First().Value);
         }
     }
 
     public class GameInfo
     {
-        public List<Strategy> StrategyList { get; set; }
+        public Dictionary<ActionProfile, PayoffVector> StrategyList { get; set; }
     }
-
-    public record Strategy
-    {
-        public string Owner { get; set; }
-        public int Score { get; set; }
-        public string Description { get; set; }
-        public override string ToString()
-        {
-            return Description;
-        }
-    }
-
+    public record ActionProfile(params string[] Actions);
+    public record PayoffVector(params int[] Scores);
 }
