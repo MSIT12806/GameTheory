@@ -1,36 +1,32 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using ConsoleApp;
+using System.Linq;
 
 Console.WriteLine("Hello, World!");
 
 var a = Init_A();
-Console.WriteLine(ShowDecission(a.Decision(new GameInfo { Json = GetJ() })));
+Console.WriteLine(a.Decision(new GameInfo { StrategyList = GetJ() }));
 
 DecisionMaker Init_A()
 {
-    return new DecisionMaker("A", info =>
-    {
-        return info.Json.Cast<Dictionary<string, object>>().Where(x => x["object"] == "A").OrderByDescending(x => x["value"]).FirstOrDefault();
-    });
+    return new DecisionMaker("A", where: x=>x.Owner=="A", sort: x=>x.Score);
 }
-string ShowDecission(Dictionary<string, object> result)
+static List<Strategy> GetJ()
 {
-    return (result["value"]).ToString();
-}
-static List<object> GetJ()
-{
-    return  new List<object>
+    return new List<Strategy>
     {
-        new Dictionary<string, object>
-        {
-            {"object", "A"},
-            {"value", 10}
+        new Strategy {
+        Owner = "A",
+        Score = 10,
+        Description = "A 選擇 坦承不諱",
         },
-        new Dictionary<string, object>
-        {
-            {"object", "A"},
-            {"value", 5}
-        },
+
+       new Strategy
+       {
+           Owner = "A",
+           Score = 5,
+           Description = "A 選擇 閉口不言"
+       }
     };
 }
